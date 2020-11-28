@@ -1,0 +1,39 @@
+.toolbar-button{
+    -fx-border-color: transparent;
+    -fx-border-width: 0;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-font-family:"Segoe UI", Helvetica, Arial, sans-serif;
+    -fx-font-size: 1em; /* 12 */
+    -fx-text-fill: #000000;
+}
+.toolbar-button:focused {
+    -fx-background-color: #d6d6d6;
+    /*-fx-border-color: transparent, black;*/
+    /*-fx-border-width: 1, 1;*/
+    /*-fx-border-style: solid, segments(1, 2);*/
+    /*-fx-border-radius: 0, 0;*/
+    /*-fx-border-insets: 1 1 1 1, 0;*/
+}
+.toolbar-button:pressed {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+.toolbar-button:hover > #add-url-image{
+    -fx-image: url("../img/add-url-hover.png");
+}
+.toolbar-button:hover > #start-image{
+    -fx-image: url("../img/start-hover.png");
+}
+.toolbar-button:hover > #stop-image{
+    -fx-image: url("../img/stop-hover.png");
+}
+#add-url-image{
+    -fx-image: url("../img/add-url.png");
+}
+#start-image{
+    -fx-image: url("../img/start.png");
+}
+#stop-image{
+    -fx-image: url("../img/stop.png");
+}
