@@ -1,6 +1,5 @@
 package controllers;
 
-import core.helpper.Downloader;
 import core.helpper.FileDownload;
 import core.helpper.FileInformationHelpper;
 import core.models.FileInformation;
@@ -74,7 +73,8 @@ public class FileInformationController {
 
         FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
         fileInformationHelpper.add(fileInformation);
-        MainController.addToTable(fileInformation);
+        MainController.updateFileList();
+        //MainController.addToTable(fileInformation);
 
 
         Stage downloadMonitor = new Stage();
@@ -83,7 +83,6 @@ public class FileInformationController {
 
         ItemDownloadMonitorController itemDownloadMonitorController = new ItemDownloadMonitorController();
         itemDownloadMonitorController.setFileInfo(fileInformation);
-        itemDownloadMonitorController.setStartPosition(0);
 
         fxmlLoader.setController(itemDownloadMonitorController);
 
@@ -95,7 +94,6 @@ public class FileInformationController {
         downloadMonitor.setScene(new Scene(root));
         downloadMonitor.setOnHidden(e -> itemDownloadMonitorController.close());
         itemDownloadMonitorController.setStage(downloadMonitor);
-
         downloadMonitor.show();
     }
 

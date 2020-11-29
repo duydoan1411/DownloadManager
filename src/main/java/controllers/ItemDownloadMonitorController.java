@@ -31,31 +31,39 @@ public class ItemDownloadMonitorController {
 
     private Downloader downloader;
     private Thread thread;
-    private long startPosition;
 
     @FXML
     private void initialize(){
         labelURL.setText(fileInformation.getUrlPath());
-        downloader = new Downloader(fileInformation, startPosition, this);
+        createDownloader();
+    }
+
+    private void createDownloader(){
+        MainController.pathFileDownloading.add(fileInformation.getLocalPath()+fileInformation.getFileName());
+        downloader = new Downloader(fileInformation, this);
 
         progressBar.progressProperty().bind(downloader.progressProperty());
         labelStatus.textProperty().bind(downloader.messageProperty());
 
         thread = new Thread(downloader);
-        thread.setDaemon(true);
+        //thread.setDaemon(true);
         thread.start();
     }
 
     public void onActionPause(ActionEvent actionEvent){
 
         if (buttonPause.getText().equals("Tam Dung")){
-            downloader.pause();
+            downloader.stop();
             buttonPause.setText("Tiep Tuc");
         }else if (buttonPause.getText().equals("Tiep Tuc")){
-            downloader.resume();
             buttonPause.setText("Tam Dung");
+            createDownloader();
         }
 
+    }
+
+    public void onActionButtonCancel(ActionEvent actionEvent){
+        close();
     }
 
     public static String getReadableSize(long bytes) {
@@ -85,9 +93,6 @@ public class ItemDownloadMonitorController {
         this.fileInformation = fileInfo;
     }
 
-    public void setStartPosition(long startPosition){
-        this.startPosition = startPosition;
-    }
 
     public void setStage(Stage stage){
         this.stage = stage;
@@ -99,8 +104,8 @@ public class ItemDownloadMonitorController {
 
     public void close() {
         downloader.stop();
+        MainController.pathFileDownloading.remove(fileInformation.getLocalPath()+fileInformation.getFileName());
         stage.close();
-
     }
 
 }

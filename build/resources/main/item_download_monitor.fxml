@@ -39,7 +39,7 @@
             <Label fx:id="labelResume" text="Co" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             <HBox nodeOrientation="RIGHT_TO_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="7">
                <children>
-                  <Button fx:id="buttonCancel" mnemonicParsing="false" text="Huy Bo">
+                  <Button fx:id="buttonCancel" mnemonicParsing="false" onAction="#onActionButtonCancel" text="Huy Bo">
                      <HBox.margin>
                         <Insets right="10.0" />
                      </HBox.margin></Button>

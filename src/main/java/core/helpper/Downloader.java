@@ -16,7 +16,6 @@ import controllers.MainController;
 import core.models.FileInformation;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javafx.stage.Stage;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -31,7 +30,6 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.sql.SQLException;
 
 public class Downloader extends Task<Long>
 {
@@ -49,10 +47,10 @@ public class Downloader extends Task<Long>
     private ItemDownloadMonitorController controller;
     private FileInformationHelpper fileInformationHelpper;
 
-    public Downloader(FileInformation downloadedFile, long startPosition, ItemDownloadMonitorController controller)
+    public Downloader(FileInformation downloadedFile, ItemDownloadMonitorController controller)
     {
         this.controller = controller;
-        this.startPostion = startPosition;
+        this.startPostion = downloadedFile.getDownloaded() > 0 ? downloadedFile.getDownloaded() : 0;
         this.download = downloadedFile;
         this.fileInformationHelpper = new FileInformationHelpper();
         try
@@ -64,7 +62,7 @@ public class Downloader extends Task<Long>
                 httpConn.addRequestProperty("User-Agent",
                         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
                 httpConn.setRequestMethod("GET");
-                httpConn.setRequestProperty("Range", String.format("bytes=%d-", startPosition));
+                httpConn.setRequestProperty("Range", String.format("bytes=%d-", this.startPostion));
 
             }else {
                 isHTTP = false;
@@ -86,7 +84,7 @@ public class Downloader extends Task<Long>
                 httpsConn.addRequestProperty("User-Agent",
                         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
                 httpsConn.setRequestMethod("GET");
-                httpsConn.setRequestProperty("Range", String.format("bytes=%d-", startPosition));
+                httpsConn.setRequestProperty("Range", String.format("bytes=%d-", this.startPostion));
             }
         }
         catch (IOException | KeyManagementException | NoSuchAlgorithmException e)
@@ -100,15 +98,16 @@ public class Downloader extends Task<Long>
     {
         try
         {
-
             InputStream inputStream = isHTTP ? httpConn.getInputStream() : httpsConn.getInputStream();
 
-            FileOutputStream fileOutputStream = new FileOutputStream(download.getLocalPath()+download.getFileName());
+            FileOutputStream fileOutputStream = startPostion > 0 ?
+                    new FileOutputStream(download.getLocalPath()+download.getFileName(), true)
+                    : new FileOutputStream(download.getLocalPath()+download.getFileName(), false);
 
             byte[] buffer = new byte[BUFFER_SIZE];
             int bytesRead;
-            long totalBytesRead = 0;
-            int fileSize = isHTTP ? httpConn.getContentLength() : httpsConn.getContentLength();
+            long totalBytesRead = download.getDownloaded();
+            long fileSize = download.getSize();
 
             Platform.runLater(new Runnable() {
                 @Override
@@ -125,15 +124,13 @@ public class Downloader extends Task<Long>
             {
                 while ((bytesRead = inputStream.read(buffer)) != - 1) // Read The Bytes
                 {
-                    if (pause) {
-                        if (stop) {
-                            break;
-                        }
-                        object.wait(); // Wait Thread
+                    if (stop) {
+                        break;
                     }
                     else
                     {
                         fileOutputStream.write(buffer, 0, bytesRead); // Write To File
+
                         totalBytesRead += bytesRead;
                         download.setDownloaded(totalBytesRead);
                         long finalTotalBytesRead = totalBytesRead;
@@ -176,10 +173,6 @@ public class Downloader extends Task<Long>
         {
             updateMessage("Khong The Tai File");
         }
-        catch (InterruptedException e)
-        {
-            updateMessage("Khong The Tam Dung Hoac Tiep Tuc");
-        }
 
         return (long) download.getDownloaded();
     }
@@ -187,29 +180,13 @@ public class Downloader extends Task<Long>
     @Override
     protected void succeeded() // Calls When Task Finished Successfully
     {
-        fileInformationHelpper.update(download);
-        updateMessage("Hoan Tat");
-        MainController.updateFileList();
-        controller.getStage().close();
-
-    }
-
-    public void pause()
-    {
-        pause = true; // The Thread States Flag
-
-        fileInformationHelpper.update(download);
-        MainController.updateFileList();
-    }
-
-    public void resume()
-    {
-        pause = false; // The Thread States Flag
-
-        synchronized (object)
-        {
-            object.notify(); // Resume Thread
+        if (download.getDownloaded() == download.getSize()) {
+            download.setStatus(100);
+            controller.getStage().close();
         }
+        fileInformationHelpper.update(download);
+        //updateMessage("Hoan Tat");
+        MainController.updateFileList();
     }
 
     public boolean isPause()
@@ -222,7 +199,6 @@ public class Downloader extends Task<Long>
     }
 
     public void stop(){
-        pause();
         stop = true;
     }
 }

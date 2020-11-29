@@ -9,15 +9,6 @@
 
 <VBox prefHeight="600.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.MainController">
   <children>
-    <MenuBar VBox.vgrow="NEVER">
-      <menus>
-        <Menu mnemonicParsing="false" text="File">
-          <items>
-            <MenuItem mnemonicParsing="false" text="New URL" />
-          </items>
-        </Menu>
-      </menus>
-    </MenuBar>
       <ToolBar prefHeight="104.0" prefWidth="900.0" stylesheets="@style/main-stylesheet.css">
         <items>
             <GridPane hgap="10.0">
@@ -35,11 +26,11 @@
                      <graphic>
                         <ImageView id="add-url-image" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
                      </graphic></Button>
-                  <Button contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="toolbar-button" text="Start" GridPane.columnIndex="1">
+                  <Button fx:id="startButton" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onActionStartButton" styleClass="toolbar-button" text="Start" GridPane.columnIndex="1">
                      <graphic>
                         <ImageView id="start-image" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
                      </graphic></Button>
-                  <Button contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" styleClass="toolbar-button" text="Stop" GridPane.columnIndex="2">
+                  <Button fx:id="deleteButton" contentDisplay="TOP" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onActionDeleteButton" styleClass="toolbar-button" text="Delete" GridPane.columnIndex="2">
                      <graphic>
                         <ImageView id="stop-image" fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true" />
                      </graphic></Button>
@@ -49,7 +40,7 @@
       </ToolBar>
     <SplitPane dividerPositions="0.1994991652754591" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
-            <TreeView nodeOrientation="RIGHT_TO_LEFT" prefWidth="248.0" />
+            <TreeView fx:id="treeView" nodeOrientation="LEFT_TO_RIGHT" prefWidth="248.0" />
             <TableView fx:id="tableView" prefHeight="200.0" prefWidth="200.0" />
       </items>
     </SplitPane>
