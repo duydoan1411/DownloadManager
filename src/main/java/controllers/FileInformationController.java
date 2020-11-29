@@ -2,6 +2,7 @@ package controllers;
 
 import core.helpper.Downloader;
 import core.helpper.FileDownload;
+import core.helpper.FileInformationHelpper;
 import core.models.FileInformation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -69,10 +70,11 @@ public class FileInformationController {
 
     public void onActionDownloadButton(ActionEvent actionEvent) throws IOException {
 
-
-
         fileInformation.setNumThreads((int)comboBoxThread.getValue());
-        MainController.fileInformations.add(fileInformation);
+
+        FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
+        fileInformationHelpper.add(fileInformation);
+        MainController.addToTable(fileInformation);
 
 
         Stage downloadMonitor = new Stage();
@@ -82,6 +84,7 @@ public class FileInformationController {
         ItemDownloadMonitorController itemDownloadMonitorController = new ItemDownloadMonitorController();
         itemDownloadMonitorController.setFileInfo(fileInformation);
         itemDownloadMonitorController.setStartPosition(0);
+
         fxmlLoader.setController(itemDownloadMonitorController);
 
         Parent root = fxmlLoader.load();
@@ -90,6 +93,9 @@ public class FileInformationController {
         ((Stage)button.getScene().getWindow()).close();
         downloadMonitor.setTitle(fileInformation.getFileName());
         downloadMonitor.setScene(new Scene(root));
+        downloadMonitor.setOnHidden(e -> itemDownloadMonitorController.close());
+        itemDownloadMonitorController.setStage(downloadMonitor);
+
         downloadMonitor.show();
     }
 

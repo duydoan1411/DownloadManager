@@ -5,9 +5,12 @@ import core.models.FileInformation;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.text.DecimalFormat;
 
@@ -23,6 +26,8 @@ public class ItemDownloadMonitorController {
 
     @FXML
     public Button buttonPause;
+
+    private Stage stage;
 
     private Downloader downloader;
     private Thread thread;
@@ -82,6 +87,20 @@ public class ItemDownloadMonitorController {
 
     public void setStartPosition(long startPosition){
         this.startPosition = startPosition;
+    }
+
+    public void setStage(Stage stage){
+        this.stage = stage;
+    }
+
+    public Stage getStage(){
+        return this.stage;
+    }
+
+    public void close() {
+        downloader.stop();
+        stage.close();
+
     }
 
 }

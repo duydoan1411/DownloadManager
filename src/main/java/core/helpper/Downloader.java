@@ -12,6 +12,7 @@
 package core.helpper;
 
 import controllers.ItemDownloadMonitorController;
+import controllers.MainController;
 import core.models.FileInformation;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -32,7 +33,7 @@ import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 
-public class Downloader extends Task<Integer>
+public class Downloader extends Task<Long>
 {
     private static final int BUFFER_SIZE = 4096;
 
@@ -44,13 +45,16 @@ public class Downloader extends Task<Integer>
 
     private final Object object = new Object(); // Monitor
     private boolean pause = false;
+    private boolean stop = false;
     private ItemDownloadMonitorController controller;
+    private FileInformationHelpper fileInformationHelpper;
 
     public Downloader(FileInformation downloadedFile, long startPosition, ItemDownloadMonitorController controller)
     {
         this.controller = controller;
         this.startPostion = startPosition;
         this.download = downloadedFile;
+        this.fileInformationHelpper = new FileInformationHelpper();
         try
         {
             updateMessage("Dang Ket Noi...");
@@ -92,7 +96,7 @@ public class Downloader extends Task<Integer>
     }
 
     @Override
-    protected Integer call()
+    protected Long call()
     {
         try
         {
@@ -121,12 +125,17 @@ public class Downloader extends Task<Integer>
             {
                 while ((bytesRead = inputStream.read(buffer)) != - 1) // Read The Bytes
                 {
-                    if (pause)
+                    if (pause) {
+                        if (stop) {
+                            break;
+                        }
                         object.wait(); // Wait Thread
+                    }
                     else
                     {
                         fileOutputStream.write(buffer, 0, bytesRead); // Write To File
                         totalBytesRead += bytesRead;
+                        download.setDownloaded(totalBytesRead);
                         long finalTotalBytesRead = totalBytesRead;
                         download.setStatus((totalBytesRead * 100) / fileSize); // Progress
                         updateProgress(download.getStatus(), 100);
@@ -146,21 +155,21 @@ public class Downloader extends Task<Integer>
                 }
             }
 
-            download.setStatus(100);
-
-            updateMessage("Hoan Tat");
-
-
-
+            //updateMessage("Hoan Tat");
             /*
              * Close Streams And Connections
              */
+
             fileOutputStream.close();
             inputStream.close();
-            httpConn.disconnect();
-            httpsConn.disconnect();
 
-            return (int) download.getStatus();
+            if (isHTTP){
+                httpConn.disconnect();
+            }else {
+                httpsConn.disconnect();
+            }
+
+            return (long) download.getDownloaded();
 
         }
         catch (IOException e)
@@ -172,19 +181,25 @@ public class Downloader extends Task<Integer>
             updateMessage("Khong The Tam Dung Hoac Tiep Tuc");
         }
 
-        return (int) download.getStatus();
+        return (long) download.getDownloaded();
     }
 
     @Override
     protected void succeeded() // Calls When Task Finished Successfully
     {
+        fileInformationHelpper.update(download);
+        updateMessage("Hoan Tat");
+        MainController.updateFileList();
+        controller.getStage().close();
 
-            updateMessage("Hoan Tat");
     }
 
     public void pause()
     {
         pause = true; // The Thread States Flag
+
+        fileInformationHelpper.update(download);
+        MainController.updateFileList();
     }
 
     public void resume()
@@ -200,5 +215,14 @@ public class Downloader extends Task<Integer>
     public boolean isPause()
     {
         return pause;
+    }
+
+    public boolean isStop() {
+        return stop;
+    }
+
+    public void stop(){
+        pause();
+        stop = true;
     }
 }
