@@ -1,14 +1,3 @@
-/*
- *  In The Name of ALLAH
- *
- *  Written by: Mortaza Seydi - Zanjan University - Spring 2018
- *
- *  Internet Download Manager (IDM)
- *
- *  Github : https://github.com/Mortaza-Seydi
- *
- */
-
 package core.helpper;
 
 import controllers.ItemDownloadMonitorController;
@@ -130,7 +119,6 @@ public class Downloader extends Task<Long>
                     else
                     {
                         fileOutputStream.write(buffer, 0, bytesRead); // Write To File
-
                         totalBytesRead += bytesRead;
                         download.setDownloaded(totalBytesRead);
                         long finalTotalBytesRead = totalBytesRead;
@@ -151,11 +139,6 @@ public class Downloader extends Task<Long>
                     }
                 }
             }
-
-            //updateMessage("Hoan Tat");
-            /*
-             * Close Streams And Connections
-             */
 
             fileOutputStream.close();
             inputStream.close();
