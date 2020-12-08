@@ -1,6 +1,7 @@
 package controllers;
 
 import UI.Main;
+import core.helpper.FileDownload;
 import core.helpper.FileInformationHelpper;
 import core.models.FileInformation;
 import javafx.collections.FXCollections;
@@ -82,9 +83,12 @@ public class MainController {
 
         mi1.setOnAction(event -> {
             FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
-
+            FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
+            if (!fileDownload.getCanResume()){
+                fileInformation.setDownloaded(0);
+            }
             if ((fileInformation.getStatus() < 100) && !fileIsBusy(fileInformation.getLocalPath()+fileInformation.getFileName()))
-                createDownloadForm(fileInformation);
+                createDownloadForm(fileInformation, fileDownload.getCanResume());
         });
         cm.getItems().add(mi1);
 
@@ -149,8 +153,13 @@ public class MainController {
             row.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     FileInformation fileInformation = row.getItem();
-                    if (!fileIsBusy(fileInformation.getLocalPath()+fileInformation.getFileName()) && fileInformation.getStatus() < 100)
-                        createDownloadForm(fileInformation);
+                    if (!fileIsBusy(fileInformation.getLocalPath()+fileInformation.getFileName()) && fileInformation.getStatus() < 100) {
+                        FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
+                        if (!fileDownload.getCanResume()) {
+                            fileInformation.setDownloaded(0);
+                        }
+                        createDownloadForm(fileInformation, fileDownload.getCanResume());
+                    }
                 }
             });
             return row ;
@@ -185,7 +194,7 @@ public class MainController {
         return pathFileDownloading.contains(filePath);
     }
 
-    private void createDownloadForm(FileInformation fileInformation){
+    private void createDownloadForm(FileInformation fileInformation, Boolean canResume){
         startButton.setDisable(true);
         deleteButton.setDisable(true);
         Stage downloadMonitor = new Stage();
@@ -194,6 +203,7 @@ public class MainController {
 
         ItemDownloadMonitorController itemDownloadMonitorController = new ItemDownloadMonitorController();
         itemDownloadMonitorController.setFileInfo(fileInformation);
+        itemDownloadMonitorController.setCanResume(canResume);
 
         fxmlLoader.setController(itemDownloadMonitorController);
 
@@ -225,7 +235,11 @@ public class MainController {
     public void onActionStartButton(ActionEvent actionEvent){
         FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
         if (fileInformation!=null){
-            createDownloadForm(fileInformation);
+            FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
+            if (!fileDownload.getCanResume()) {
+                fileInformation.setDownloaded(0);
+            }
+            createDownloadForm(fileInformation, fileDownload.getCanResume());
         }
     }
 

@@ -25,10 +25,8 @@
          </GridPane.margin>
       </Label>
       <Label text="Save As" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
-      <Label text="Thread" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
       <TextField fx:id="textFieldURL" editable="false" prefHeight="26.0" prefWidth="465.0" GridPane.columnIndex="1" GridPane.columnSpan="3" />
       <TextField fx:id="textFieldSaveAs" prefHeight="26.0" prefWidth="464.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-      <ComboBox fx:id="comboBoxThread" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <Label fx:id="labelFileSize" text="10 MB" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.valignment="CENTER" />
       <Button mnemonicParsing="false" onAction="#onActionFileChoose" text="..." GridPane.columnIndex="3" GridPane.rowIndex="1" />
       <GridPane hgap="10.0" vgap="10.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="3">

@@ -9,14 +9,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class FileInformationController {
 
@@ -35,18 +35,19 @@ public class FileInformationController {
     public ComboBox comboBoxThread;
 
     private FileInformation fileInformation;
+    private FileDownload fileDownload;
 
     @FXML
     private void initialize() throws IOException {
-        FileDownload fileDownload = new FileDownload(url);
+        fileDownload = new FileDownload(url);
         fileInformation = fileDownload.getFileInformation();
 
         textFieldURL.setText(url);
         textFieldSaveAs.setText(fileInformation.getLocalPath()+fileInformation.getFileName());
         textFieldSaveAs.setEditable(false);
         labelFileSize.setText(ItemDownloadMonitorController.getReadableSize(fileInformation.getSize()));
-        comboBoxThread.getItems().addAll(1, 2, 4, 8, 16, 32);
-        comboBoxThread.setValue(1);
+//        comboBoxThread.getItems().addAll(1, 2, 4, 8, 16, 32);
+//        comboBoxThread.setValue(1);
     }
 
     public void onActionCancelButton(ActionEvent actionEvent){
@@ -69,13 +70,28 @@ public class FileInformationController {
 
     public void onActionDownloadButton(ActionEvent actionEvent) throws IOException {
 
-        fileInformation.setNumThreads((int)comboBoxThread.getValue());
+        //fileInformation.setNumThreads((int)comboBoxThread.getValue());
+        File file = new File(fileInformation.getLocalPath()+fileInformation.getFileName());
+        if (file.exists()){
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Xac Nhan");
+            alert.setHeaderText("File da ton tai, ban co muon ghi de?");
+            alert.setContentText("File da ton tai hoac dang duoc tai, neu ban ghi de co the dan toi hong du lieu hoac loi!!!");
+            ButtonType yesButton = new ButtonType("Co");
+            ButtonType noButton = new ButtonType("Khong");
+
+            alert.getButtonTypes().clear();
+            alert.getButtonTypes().addAll(yesButton, noButton);
+            Optional<ButtonType> optional = alert.showAndWait();
+
+            if (optional.get() == null) return;
+            if (optional.get() == noButton) return;
+        }
 
         FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
         fileInformationHelpper.add(fileInformation);
         MainController.updateFileList();
         //MainController.addToTable(fileInformation);
-
 
         Stage downloadMonitor = new Stage();
 
@@ -83,6 +99,7 @@ public class FileInformationController {
 
         ItemDownloadMonitorController itemDownloadMonitorController = new ItemDownloadMonitorController();
         itemDownloadMonitorController.setFileInfo(fileInformation);
+        itemDownloadMonitorController.setCanResume(fileDownload.getCanResume());
 
         fxmlLoader.setController(itemDownloadMonitorController);
 

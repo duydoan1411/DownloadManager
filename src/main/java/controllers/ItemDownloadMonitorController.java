@@ -27,14 +27,24 @@ public class ItemDownloadMonitorController {
     @FXML
     public Button buttonPause;
 
+
     private Stage stage;
 
     private Downloader downloader;
     private Thread thread;
 
+    private Boolean canResume = false;
+
     @FXML
     private void initialize(){
         labelURL.setText(fileInformation.getUrlPath());
+        if (canResume)
+            labelResume.setText("Co");
+        else {
+            labelResume.setText("Khong");
+            fileInformation.setDownloaded(0);
+            buttonPause.setDisable(true);
+        }
         createDownloader();
     }
 
@@ -46,7 +56,6 @@ public class ItemDownloadMonitorController {
         labelStatus.textProperty().bind(downloader.messageProperty());
 
         thread = new Thread(downloader);
-        //thread.setDaemon(true);
         thread.start();
     }
 
@@ -100,6 +109,10 @@ public class ItemDownloadMonitorController {
 
     public Stage getStage(){
         return this.stage;
+    }
+
+    public void setCanResume(Boolean canResume) {
+        this.canResume = canResume;
     }
 
     public void close() {

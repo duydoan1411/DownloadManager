@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 public class FileDownload {
 
     private FileInformation fileInformation;
+    private Boolean canResume = false;
 
     public FileDownload(String url1) {
         try {
@@ -78,8 +79,11 @@ public class FileDownload {
 
                 conn.addRequestProperty("User-Agent",
                         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Range", "bytes=0-");
+                //conn.setRequestMethod("GET");
                 conn.getInputStream();
+                canResume = conn.getResponseCode() == 206 ? true : false;
+                System.out.println(canResume);
                 Pattern p = Pattern.compile(".+filename=\"(.+?)\".*");
                 String contentDisposition = conn.getHeaderField("Content-Disposition");
                 if(contentDisposition != null) {
@@ -101,8 +105,10 @@ public class FileDownload {
                 conn = (HttpURLConnection) url.openConnection();
                 conn.addRequestProperty("User-Agent",
                         "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0)");
-                ((HttpURLConnection) conn).setRequestMethod("GET");
+                //((HttpURLConnection) conn).setRequestMethod("GET");
+                conn.setRequestProperty("Range", "bytes=0-");
                 conn.getInputStream();
+                canResume = conn.getResponseCode() == 206 ? true : false;
                 Pattern p = Pattern.compile(".+filename=\"(.+?)\".*");
                 String contentDisposition = conn.getHeaderField("Content-Disposition");
                 if(contentDisposition != null) {
@@ -122,8 +128,8 @@ public class FileDownload {
 
         fileInformation = new FileInformation(fileName, localPath, urlPath, numThreads, size, date);
     }
-//
-//    public static FileInformation getFileInformation(URL url){
-//
-//    }
+
+    public Boolean getCanResume() {
+        return canResume;
+    }
 }
