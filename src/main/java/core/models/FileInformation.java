@@ -1,16 +1,21 @@
 package core.models;
 
 import controllers.ItemDownloadMonitorController;
+import core.helpper.SubFileInformationHelper;
+
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "file_info")
 public class FileInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int idFile;
 
     @Column
     private String fileName;
@@ -35,6 +40,9 @@ public class FileInformation {
 
     @Column
     private double status;
+
+    @OneToMany(mappedBy = "fileInformation", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubFileInformation> subFileInformationSet = new ArrayList<>();
 
 
     public FileInformation() {
@@ -64,7 +72,7 @@ public class FileInformation {
     }
 
     public FileInformation(int id, String fileName, String localPath, String urlPath, long downloaded, int numThreads, long size, Date dateTime, double status) {
-        this.id = id;
+        this.idFile = id;
         this.fileName = fileName;
         this.localPath = localPath;
         this.urlPath = urlPath;
@@ -76,12 +84,32 @@ public class FileInformation {
 
     }
 
+    public void addSubFileInformation(SubFileInformation subFileInformation){
+        this.subFileInformationSet.add(subFileInformation);
+    }
+
+    public int getIdFile() {
+        return idFile;
+    }
+
+    public void setIdFile(int idFile) {
+        this.idFile = idFile;
+    }
+
+    public List<SubFileInformation> getSubFileInformationSet() {
+        return subFileInformationSet;
+    }
+
+    public void setSubFileInformationSet(List<SubFileInformation> subFileInformationSet) {
+        this.subFileInformationSet = subFileInformationSet;
+    }
+
     public int getId() {
-        return id;
+        return idFile;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.idFile = id;
     }
 
     public long getDownloaded() {
@@ -166,7 +194,7 @@ public class FileInformation {
     @Override
     public String toString() {
         return "FileInformation{" +
-                "id=" + id +
+                "id=" + idFile +
                 ", fileName='" + fileName + '\'' +
                 ", localPath='" + localPath + '\'' +
                 ", urlPath='" + urlPath + '\'' +

@@ -13,23 +13,22 @@ public class FileInformationHelpper {
     private Session session;
 
     public FileInformationHelpper() {
-        this.session = HibernateUtils.getSessionFactory().openSession();
-        session.beginTransaction();
+//        this.session = HibernateUtils.getSessionFactory().getCurrentSession();
+//        session.beginTransaction();
     }
 
     public ObservableList<FileInformation> getAll(){
-        if (!session.getTransaction().isActive()){
-            session.beginTransaction();
-        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         List<FileInformation> q = session.createQuery("from FileInformation", FileInformation.class).list();
         session.getTransaction().commit();
         System.out.println(q.toString());
+        session.close();
         return FXCollections.observableList(q);
     }
     public ObservableList<FileInformation> getAll(String option){
-        if (!session.getTransaction().isActive()){
-            session.beginTransaction();
-        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         List<FileInformation> q = null;
         if (option.equals("success"))
             q = session.createQuery("from FileInformation where status = 100", FileInformation.class).list();
@@ -40,33 +39,45 @@ public class FileInformationHelpper {
                 q = session.createQuery("from FileInformation", FileInformation.class).list();
         session.getTransaction().commit();
         System.out.println(q.toString());
+        session.close();
         return FXCollections.observableList(q);
     }
 
+    public FileInformation get(int id){
+//        if (!session.getTransaction().isActive()){
+//            session.beginTransaction();
+//        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
+        String query = "from FileInformation where id = :id";
+        List<FileInformation> q = session.createQuery(query, FileInformation.class).setParameter("id", id).list();
+        session.close();
+        return !q.isEmpty() ? q.get(0) : null;
+    }
 
     public int add(FileInformation fileInformation){
-        if (!session.getTransaction().isActive()){
-            session.beginTransaction();
-        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         int id = (int) session.save(fileInformation);
         session.getTransaction().commit();
+        session.close();
         return id;
     }
 
     public void update(FileInformation fileInformation){
-        if (!session.getTransaction().isActive()){
-            session.beginTransaction();
-        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         session.update(fileInformation);
         session.getTransaction().commit();
+        session.close();
     }
 
     public void delete(FileInformation fileInformation){
-        if (!session.getTransaction().isActive()){
-            session.beginTransaction();
-        }
+        session = HibernateUtils.getSessionFactory().openSession();
+        session.beginTransaction();
         session.delete(fileInformation);
         session.getTransaction().commit();
+        session.close();
     }
 
 }

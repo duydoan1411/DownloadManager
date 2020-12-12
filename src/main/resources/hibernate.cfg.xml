@@ -26,6 +26,7 @@
 
         <!-- Entity mapping -->
         <mapping class="core.models.FileInformation" />
+        <mapping class="core.models.SubFileInformation" />
 
     </session-factory>
 </hibernate-configuration>
