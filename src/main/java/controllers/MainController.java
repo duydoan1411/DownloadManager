@@ -1,9 +1,13 @@
 package controllers;
 
 import UI.Main;
-import core.helpper.FileDownload;
-import core.helpper.FileInformationHelpper;
-import core.models.FileInformation;
+import core.controllers.DownloadManagerTask;
+import core.controllers.DownloadSubTask;
+import core.controllers.FileDownloadHelper;
+import core.models.DAO.FileInformationDAO;
+import core.models.DAO.SubFileInformationDAO;
+import core.models.DTO.FileInformation;
+import core.models.DTO.SubFileInformation;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -54,7 +58,6 @@ public class MainController {
         TableColumn<FileInformation, Date> timeColumn = new TableColumn<>("Thoi Gian");
         TableColumn<FileInformation, String> downloadedColumn = new TableColumn<>("Da Tai Duoc");
 
-
         fileInformations.addListener(new ListChangeListener<FileInformation>() {
             @Override
             public void onChanged(Change<? extends FileInformation> c) {
@@ -83,12 +86,12 @@ public class MainController {
 
         mi1.setOnAction(event -> {
             FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
-            FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
-            if (!fileDownload.getCanResume()){
+            FileDownloadHelper fileDownloadHelper = new FileDownloadHelper(fileInformation.getUrlPath());
+            if (!fileDownloadHelper.getCanResume()){
                 fileInformation.setDownloaded(0);
             }
             if ((fileInformation.getStatus() < 100) && !fileIsBusy(fileInformation.getLocalPath()+fileInformation.getFileName()))
-                createDownloadForm(fileInformation, fileDownload.getCanResume());
+                createDownloadForm(fileInformation, fileDownloadHelper.getCanResume());
         });
         cm.getItems().add(mi1);
 
@@ -96,8 +99,8 @@ public class MainController {
 
         mi2.setOnAction(event -> {
             FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
-            FileInformationHelpper fileInformationHelpper  = new FileInformationHelpper();
-            fileInformationHelpper.delete(fileInformation);
+            FileInformationDAO fileInformationDAO = new FileInformationDAO();
+            fileInformationDAO.delete(fileInformation);
             updateFileList();
         });
         cm.getItems().add(mi2);
@@ -105,8 +108,8 @@ public class MainController {
         MenuItem mi3 = new MenuItem("Xoa va xoa luon file");
         mi3.setOnAction(event -> {
             FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
-            FileInformationHelpper fileInformationHelpper  = new FileInformationHelpper();
-            fileInformationHelpper.delete(fileInformation);
+            FileInformationDAO fileInformationDAO = new FileInformationDAO();
+            fileInformationDAO.delete(fileInformation);
             updateFileList();
             File myObj = new File(fileInformation.getLocalPath()+fileInformation.getFileName());
             myObj.delete();
@@ -154,11 +157,11 @@ public class MainController {
                 if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
                     FileInformation fileInformation = row.getItem();
                     if (!fileIsBusy(fileInformation.getLocalPath()+fileInformation.getFileName()) && fileInformation.getStatus() < 100) {
-                        FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
-                        if (!fileDownload.getCanResume()) {
+                        FileDownloadHelper fileDownloadHelper = new FileDownloadHelper(fileInformation.getUrlPath());
+                        if (!fileDownloadHelper.getCanResume()) {
                             fileInformation.setDownloaded(0);
                         }
-                        createDownloadForm(fileInformation, fileDownload.getCanResume());
+                        createDownloadForm(fileInformation, fileDownloadHelper.getCanResume());
                     }
                 }
             });
@@ -222,31 +225,31 @@ public class MainController {
     }
 
     public static void updateFileList(){
-        FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
         fileInformations.clear();
-        fileInformations.addAll(fileInformationHelpper.getAll());
+        fileInformations.addAll(fileInformationDAO.getAll());
     }
     public static void updateFileList(String options){
-        FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
         fileInformations.clear();
-        fileInformations.addAll(fileInformationHelpper.getAll(options));
+        fileInformations.addAll(fileInformationDAO.getAll(options));
     }
 
     public void onActionStartButton(ActionEvent actionEvent){
         FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
         if (fileInformation!=null){
-            FileDownload fileDownload = new FileDownload(fileInformation.getUrlPath());
-            if (!fileDownload.getCanResume()) {
+            FileDownloadHelper fileDownloadHelper = new FileDownloadHelper(fileInformation.getUrlPath());
+            if (!fileDownloadHelper.getCanResume()) {
                 fileInformation.setDownloaded(0);
             }
-            createDownloadForm(fileInformation, fileDownload.getCanResume());
+            createDownloadForm(fileInformation, fileDownloadHelper.getCanResume());
         }
     }
 
     public void onActionDeleteButton(ActionEvent actionEvent){
         FileInformation fileInformation = (FileInformation) tableView.getSelectionModel().getSelectedItem();
-        FileInformationHelpper fileInformationHelpper  = new FileInformationHelpper();
-        fileInformationHelpper.delete(fileInformation);
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
+        fileInformationDAO.delete(fileInformation);
         updateFileList();
     }
 

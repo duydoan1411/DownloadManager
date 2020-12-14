@@ -1,9 +1,5 @@
-import DAO.HibernateUtils;
-import core.helpper.FileInformationHelpper;
-import core.models.FileInformation;
-import org.hibernate.Session;
-
-import java.util.Date;
+import core.models.DAO.FileInformationDAO;
+import core.models.DTO.FileInformation;
 
 public class TestHibernate {
     public static void main(String[] args) {
@@ -17,15 +13,25 @@ public class TestHibernate {
 //            session.getTransaction().commit();
 //        }
 
-        FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
-        FileInformation fileInformation = new FileInformation("123", "fasdfasdf",
-                "dsafsdfasd", 1, 1, new Date());
-        fileInformationHelpper.add(fileInformation);
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
+//        FileInformation fileInformation = new FileInformation("123", "fasdfasdf",
+//                "dsafsdfasd", 1, 1, new Date());
+//        fileInformationHelpper.add(fileInformation);
+//
+//        SubFileInformationHelper helper = new SubFileInformationHelper();
+//        SubFileInformation subFileInformation = new SubFileInformation(10, 5, 20, fileInformation);
+//
+//        helper.add(subFileInformation);
 
-        System.out.println("lan 1" + fileInformationHelpper.getAll().toString());
-        fileInformation.setNumThreads(2);
-        fileInformationHelpper.update(fileInformation);
-        System.out.println("lan 2" + fileInformationHelpper.getAll().toString());
+//        System.out.println("lan 1" + fileInformationHelpper.getAll().toString());
+//        fileInformation.setNumThreads(2);
+//        fileInformationHelpper.update(fileInformation);
+//        System.out.println("lan 2" + fileInformationHelpper.getAll().toString());
+
+        FileInformation fileInformation1 = fileInformationDAO.get(132);
+        //fileInformation1.getSubFileInformationSet().add(subFileInformation);
+        //fileInformationHelpper.update(fileInformation1);
+        System.out.println(fileInformation1.getSubFileInformationSet().toArray());
 
     }
 }

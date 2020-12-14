@@ -25,7 +25,8 @@
         <property name="show_sql">true</property>
 
         <!-- Entity mapping -->
-        <mapping class="core.models.FileInformation" />
+        <mapping class="core.models.DTO.FileInformation" />
+        <mapping class="core.models.DTO.SubFileInformation" />
 
     </session-factory>
 </hibernate-configuration>
