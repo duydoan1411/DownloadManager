@@ -1,16 +1,14 @@
 package controllers;
 
-import core.helpper.Downloader;
-import core.models.FileInformation;
-import javafx.concurrent.Task;
+import core.controllers.DownloadManagerTask;
+import core.controllers.DownloadTask;
+import core.models.DAO.FileInformationDAO;
+import core.models.DTO.FileInformation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.text.DecimalFormat;
 
@@ -27,10 +25,15 @@ public class ItemDownloadMonitorController {
     @FXML
     public Button buttonPause;
 
+    @FXML
+    public GridPane tableInfo;
+
+    @FXML
+    public ScrollPane scrollPane;
 
     private Stage stage;
 
-    private Downloader downloader;
+    private DownloadManagerTask downloadTask;
     private Thread thread;
 
     private Boolean canResume = false;
@@ -38,6 +41,7 @@ public class ItemDownloadMonitorController {
     @FXML
     private void initialize(){
         labelURL.setText(fileInformation.getUrlPath());
+        labelFileSize.setText(getReadableSize(fileInformation.getSize()));
         if (canResume)
             labelResume.setText("Co");
         else {
@@ -45,24 +49,32 @@ public class ItemDownloadMonitorController {
             fileInformation.setDownloaded(0);
             buttonPause.setDisable(true);
         }
+
+        scrollPane.setFitToHeight(true);
+
         createDownloader();
     }
 
     private void createDownloader(){
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
+        fileInformation = fileInformationDAO.get(fileInformation.getIdFile());
         MainController.pathFileDownloading.add(fileInformation.getLocalPath()+fileInformation.getFileName());
-        downloader = new Downloader(fileInformation, this);
+        downloadTask = new DownloadManagerTask(fileInformation, this);
 
-        progressBar.progressProperty().bind(downloader.progressProperty());
-        labelStatus.textProperty().bind(downloader.messageProperty());
+        progressBar.progressProperty().bind(downloadTask.progressProperty());
+        labelStatus.textProperty().bind(downloadTask.messageProperty());
 
-        thread = new Thread(downloader);
+        TableColumn tableColumn = new TableColumn();
+
+        thread = new Thread(downloadTask);
+        thread.setDaemon(true);
         thread.start();
     }
 
     public void onActionPause(ActionEvent actionEvent){
 
         if (buttonPause.getText().equals("Tam Dung")){
-            downloader.stop();
+            downloadTask.stop();
             buttonPause.setText("Tiep Tuc");
         }else if (buttonPause.getText().equals("Tiep Tuc")){
             buttonPause.setText("Tam Dung");
@@ -116,7 +128,7 @@ public class ItemDownloadMonitorController {
     }
 
     public void close() {
-        downloader.stop();
+        downloadTask.stop();
         MainController.pathFileDownloading.remove(fileInformation.getLocalPath()+fileInformation.getFileName());
         stage.close();
     }

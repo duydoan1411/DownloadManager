@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `file_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `file_info` (
-  `id` int NOT NULL AUTO_INCREMENT,
+  `idFile` int NOT NULL AUTO_INCREMENT,
   `fileName` text NOT NULL,
   `localPath` text NOT NULL,
   `urlPath` text NOT NULL,
@@ -32,9 +32,21 @@ CREATE TABLE `file_info` (
   `size` mediumtext,
   `dateTime` datetime DEFAULT NULL,
   `status` double DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`idFile`)
 ) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+Create table `sub_file_info`
+(
+    `idSubFile`     int NOT NULL AUTO_INCREMENT,
+    `startPosition` mediumtext,
+    `downloaded`    mediumtext,
+    `endPosition`   mediumtext,
+    `idFile`        int,
+    PRIMARY KEY (`idSubFile`),
+    CONSTRAINT FK_sub_file_info_file_info FOREIGN KEY (`idFile`)
+        REFERENCES `file_info` (`idFile`)
+);
 
 --
 -- Dumping data for table `file_info`

@@ -1,8 +1,8 @@
 package controllers;
 
-import core.helpper.FileDownload;
-import core.helpper.FileInformationHelpper;
-import core.models.FileInformation;
+import core.controllers.FileDownloadHelper;
+import core.models.DAO.FileInformationDAO;
+import core.models.DTO.FileInformation;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -35,19 +35,20 @@ public class FileInformationController {
     public ComboBox comboBoxThread;
 
     private FileInformation fileInformation;
-    private FileDownload fileDownload;
+    private FileDownloadHelper fileDownloadHelper;
 
     @FXML
     private void initialize() throws IOException {
-        fileDownload = new FileDownload(url);
-        fileInformation = fileDownload.getFileInformation();
+        fileDownloadHelper = new FileDownloadHelper(url);
+        fileInformation = fileDownloadHelper.getFileInformation();
 
         textFieldURL.setText(url);
         textFieldSaveAs.setText(fileInformation.getLocalPath()+fileInformation.getFileName());
         textFieldSaveAs.setEditable(false);
         labelFileSize.setText(ItemDownloadMonitorController.getReadableSize(fileInformation.getSize()));
-//        comboBoxThread.getItems().addAll(1, 2, 4, 8, 16, 32);
-//        comboBoxThread.setValue(1);
+        comboBoxThread.getItems().addAll(1, 2, 4, 8, 16, 32);
+        comboBoxThread.setValue(1);
+        comboBoxThread.setDisable(!fileDownloadHelper.getCanResume());
     }
 
     public void onActionCancelButton(ActionEvent actionEvent){
@@ -70,7 +71,7 @@ public class FileInformationController {
 
     public void onActionDownloadButton(ActionEvent actionEvent) throws IOException {
 
-        //fileInformation.setNumThreads((int)comboBoxThread.getValue());
+        fileInformation.setNumThreads((int)comboBoxThread.getValue());
         File file = new File(fileInformation.getLocalPath()+fileInformation.getFileName());
         if (file.exists()){
             Alert alert = new Alert(AlertType.WARNING);
@@ -88,10 +89,9 @@ public class FileInformationController {
             if (optional.get() == noButton) return;
         }
 
-        FileInformationHelpper fileInformationHelpper = new FileInformationHelpper();
-        fileInformationHelpper.add(fileInformation);
+        FileInformationDAO fileInformationDAO = new FileInformationDAO();
+        fileInformationDAO.add(fileInformation);
         MainController.updateFileList();
-        //MainController.addToTable(fileInformation);
 
         Stage downloadMonitor = new Stage();
 
@@ -99,7 +99,7 @@ public class FileInformationController {
 
         ItemDownloadMonitorController itemDownloadMonitorController = new ItemDownloadMonitorController();
         itemDownloadMonitorController.setFileInfo(fileInformation);
-        itemDownloadMonitorController.setCanResume(fileDownload.getCanResume());
+        itemDownloadMonitorController.setCanResume(fileDownloadHelper.getCanResume());
 
         fxmlLoader.setController(itemDownloadMonitorController);
 
